@@ -13,7 +13,7 @@ import javax.websocket.EndpointConfig;
 public class EntriesDecoder implements Decoder.Text<Entry[]> {
 	
 	private static final EntryDecoder[] DECODERS = {
-			
+		new TwitterDecoder()
 	};
 
 	@Override
