@@ -25,7 +25,7 @@ public class TwitterEntry implements Entry {
 	}
 
 	@Override
-	public int getId() {
+	public int getType() {
 		return 0;
 	}
 

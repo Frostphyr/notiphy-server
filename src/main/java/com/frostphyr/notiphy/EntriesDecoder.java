@@ -31,7 +31,7 @@ public class EntriesDecoder implements Decoder.Text<Entry[]> {
 		Entry[] entries = new Entry[arr.size()];
 		for (int i = 0; i < arr.size(); i++) {
 			JsonObject o = arr.getJsonObject(i);
-			entries[i] = DECODERS[o.getInt("id")].decode(o);
+			entries[i] = DECODERS[o.getInt("type")].decode(o);
 		}
 		return entries;
 	}
