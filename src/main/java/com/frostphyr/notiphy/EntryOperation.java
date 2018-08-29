@@ -1,5 +1,7 @@
 package com.frostphyr.notiphy;
 
+import java.util.List;
+
 public class EntryOperation {
 	
 	public static final int ADD = 0;
@@ -7,9 +9,9 @@ public class EntryOperation {
 	public static final int UPDATE = 2;
 	
 	private int operation;
-	private Entry[] entries;
+	private List<Entry>[] entries;
 	
-	public EntryOperation(int operation, Entry[] entries) {
+	public EntryOperation(int operation, List<Entry>[] entries) {
 		this.operation = operation;
 		this.entries = entries;
 	}
@@ -18,7 +20,7 @@ public class EntryOperation {
 		return operation;
 	}
 	
-	public Entry[] getEntries() {
+	public List<Entry>[] getEntries() {
 		return entries;
 	}
 

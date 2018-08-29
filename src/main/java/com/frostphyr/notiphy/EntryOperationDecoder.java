@@ -1,6 +1,8 @@
 package com.frostphyr.notiphy;
 
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -11,10 +13,6 @@ import javax.websocket.Decoder;
 import javax.websocket.EndpointConfig;
 
 public class EntryOperationDecoder implements Decoder.Text<EntryOperation> {
-	
-	private static final EntryDecoder[] DECODERS = {
-		new TwitterDecoder()
-	};
 
 	@Override
 	public void destroy() {
@@ -24,16 +22,21 @@ public class EntryOperationDecoder implements Decoder.Text<EntryOperation> {
 	public void init(EndpointConfig config) {
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public EntryOperation decode(String s) throws DecodeException {
 		JsonReader reader = Json.createReader(new StringReader(s));
 		JsonObject obj = reader.readObject();
 		int operation = obj.getInt("op");
 		JsonArray arr = obj.getJsonArray("entries");
-		Entry[] entries = new Entry[arr.size()];
+		List<Entry>[] entries = new List[5];
 		for (int i = 0; i < arr.size(); i++) {
 			JsonObject o = arr.getJsonObject(i);
-			entries[i] = DECODERS[o.getInt("type")].decode(o);
+			int type = o.getInt("type");
+			if (entries[type] == null) {
+				entries[type] = new ArrayList<Entry>();
+			}
+			entries[type].add(EntryType.values()[type].getDecoder().decode(o));
 		}
 		return new EntryOperation(operation, entries);
 	}
