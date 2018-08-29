@@ -10,7 +10,7 @@ import javax.websocket.DecodeException;
 import javax.websocket.Decoder;
 import javax.websocket.EndpointConfig;
 
-public class EntriesDecoder implements Decoder.Text<Entry[]> {
+public class EntryOperationDecoder implements Decoder.Text<EntryOperation> {
 	
 	private static final EntryDecoder[] DECODERS = {
 		new TwitterDecoder()
@@ -25,15 +25,17 @@ public class EntriesDecoder implements Decoder.Text<Entry[]> {
 	}
 
 	@Override
-	public Entry[] decode(String s) throws DecodeException {
+	public EntryOperation decode(String s) throws DecodeException {
 		JsonReader reader = Json.createReader(new StringReader(s));
-		JsonArray arr = reader.readArray();
+		JsonObject obj = reader.readObject();
+		int operation = obj.getInt("op");
+		JsonArray arr = obj.getJsonArray("entries");
 		Entry[] entries = new Entry[arr.size()];
 		for (int i = 0; i < arr.size(); i++) {
 			JsonObject o = arr.getJsonObject(i);
 			entries[i] = DECODERS[o.getInt("type")].decode(o);
 		}
-		return entries;
+		return new EntryOperation(operation, entries);
 	}
 
 	@Override

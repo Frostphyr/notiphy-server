@@ -7,12 +7,12 @@ import javax.websocket.server.ServerEndpoint;
 
 @ServerEndpoint(
 	value = "/server",
-	decoders = {EntriesDecoder.class}
+	decoders = {EntryOperationDecoder.class}
 )
 public class NotiphyServer {
 	
 	@OnMessage
-	public void onMessage(String message, Session session) {
+	public void onMessage(EntryOperation operation, Session session) {
 		
 	}
 	
