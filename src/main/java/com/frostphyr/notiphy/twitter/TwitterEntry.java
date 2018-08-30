@@ -1,4 +1,7 @@
-package com.frostphyr.notiphy;
+package com.frostphyr.notiphy.twitter;
+
+import com.frostphyr.notiphy.Entry;
+import com.frostphyr.notiphy.MediaType;
 
 public class TwitterEntry implements Entry {
 	

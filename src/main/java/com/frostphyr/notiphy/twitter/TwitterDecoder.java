@@ -1,7 +1,11 @@
-package com.frostphyr.notiphy;
+package com.frostphyr.notiphy.twitter;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
+
+import com.frostphyr.notiphy.Entry;
+import com.frostphyr.notiphy.EntryDecoder;
+import com.frostphyr.notiphy.MediaType;
 
 public class TwitterDecoder implements EntryDecoder {
 
