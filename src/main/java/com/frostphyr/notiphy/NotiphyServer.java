@@ -15,17 +15,19 @@ public class NotiphyServer {
 	
 	@OnMessage
 	public void onMessage(EntryOperation operation, Session session) {
-		for (int i = 0; i < operation.getEntries().length; i++) {
-			List<Entry> l = operation.getEntries()[i];
-			if (l != null) {
-				EntryType type = EntryType.values()[i];
-				switch (operation.getOperation()) {
-					case EntryOperation.ADD:
-						type.getRelay().add(session, l);
-						break;
-					case EntryOperation.REMOVE:
-						type.getRelay().remove(session, l);
-						break;
+		if (operation != null) {
+			for (int i = 0; i < operation.getEntries().length; i++) {
+				List<Entry> l = operation.getEntries()[i];
+				if (l != null) {
+					EntryType type = EntryType.values()[i];
+					switch (operation.getOperation()) {
+						case EntryOperation.ADD:
+							type.getRelay().add(session, l);
+							break;
+						case EntryOperation.REMOVE:
+							type.getRelay().remove(session, l);
+							break;
+					}
 				}
 			}
 		}
