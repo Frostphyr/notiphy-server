@@ -5,18 +5,18 @@ import com.frostphyr.notiphy.MediaType;
 
 public class TwitterEntry implements Entry {
 	
-	private String username;
+	private long userId;
 	private MediaType mediaType;
 	private String[] phrases;
 	
-	public TwitterEntry(String username, MediaType mediaType, String[] phrases) {
-		this.username = username;
+	public TwitterEntry(long userId, MediaType mediaType, String[] phrases) {
+		this.userId = userId;
 		this.mediaType = mediaType;
 		this.phrases = phrases;
 	}
 	
-	public String getUsername() {
-		return username;
+	public long getUserId() {
+		return userId;
 	}
 	
 	public MediaType getMediaType() {
