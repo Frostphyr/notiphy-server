@@ -3,15 +3,21 @@ package com.frostphyr.notiphy;
 import java.util.List;
 
 import javax.websocket.OnClose;
+import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @ServerEndpoint(
 	value = "/server",
 	decoders = {EntryOperationDecoder.class}
 )
 public class NotiphyServer {
+	
+	private static final Logger logger = LogManager.getLogger(NotiphyServer.class);
 	
 	@OnMessage
 	public void onMessage(EntryOperation operation, Session session) {
@@ -38,6 +44,11 @@ public class NotiphyServer {
 		for (EntryType t : EntryType.values()) {
 			t.getRelay().removeAll(session);
 		}
+	}
+	
+	@OnError
+	public void onError(Throwable throwable) {
+		logger.warn(throwable);
 	}
 
 }

@@ -13,12 +13,9 @@ import javax.websocket.DecodeException;
 import javax.websocket.Decoder;
 import javax.websocket.EndpointConfig;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.google.common.base.Throwables;
 
 public class EntryOperationDecoder implements Decoder.Text<EntryOperation> {
-	
-	private static final Logger logger = LogManager.getLogger(EntryOperationDecoder.class);
 
 	@Override
 	public void destroy() {
@@ -47,9 +44,8 @@ public class EntryOperationDecoder implements Decoder.Text<EntryOperation> {
 			}
 			return new EntryOperation(operation, entries);
 		} catch (JsonException | NullPointerException e) {
-			logger.debug(e);
+			throw new DecodeException(s, Throwables.getStackTraceAsString(e));
 		}
-		return null;
 	}
 
 	@Override
