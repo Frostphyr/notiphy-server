@@ -19,6 +19,14 @@ public class NotiphyServer {
 	
 	private static final Logger logger = LogManager.getLogger(NotiphyServer.class);
 	
+	static {
+		for (EntryType e : EntryType.values()) {
+			if (!e.getRelay().init()) {
+				System.exit(0);
+			}
+		}
+	}
+	
 	@OnMessage
 	public void onMessage(EntryOperation operation, Session session) {
 		if (operation != null) {
