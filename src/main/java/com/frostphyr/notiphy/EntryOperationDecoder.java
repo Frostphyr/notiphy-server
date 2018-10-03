@@ -1,8 +1,6 @@
 package com.frostphyr.notiphy;
 
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -15,7 +13,7 @@ import javax.websocket.EndpointConfig;
 
 import com.google.common.base.Throwables;
 
-public class EntryOperationDecoder implements Decoder.Text<EntryOperation> {
+public class EntryOperationDecoder implements Decoder.Text<EntryOperation[][]> {
 
 	@Override
 	public void destroy() {
@@ -25,24 +23,32 @@ public class EntryOperationDecoder implements Decoder.Text<EntryOperation> {
 	public void init(EndpointConfig config) {
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public EntryOperation decode(String s) throws DecodeException {
+	public EntryOperation[][] decode(String s) throws DecodeException {
 		try {
 			JsonReader reader = Json.createReader(new StringReader(s));
-			JsonObject obj = reader.readObject();
-			int operation = obj.getInt("op");
-			JsonArray arr = obj.getJsonArray("entries");
-			List<Entry>[] entries = new List[EntryType.values().length];
-			for (int i = 0; i < arr.size(); i++) {
-				JsonObject o = arr.getJsonObject(i);
-				int type = o.getInt("type");
-				if (entries[type] == null) {
-					entries[type] = new ArrayList<Entry>();
+			JsonArray operationArray = reader.readArray();
+			EntryOperation[][] operations = new EntryOperation[EntryType.values().length][2];
+			for (int i = 0; i < operationArray.size(); i++) {
+				JsonObject operationObject = operationArray.getJsonObject(i);
+				int operationCode = operationObject.getInt("op");
+				if (operationCode != EntryOperation.ADD && operationCode != EntryOperation.REMOVE) {
+					throw new DecodeException(s, "Invalid operation code: " + operationCode);
 				}
-				entries[type].add(EntryType.values()[type].getDecoder().decode(o));
+				JsonArray arr = operationObject.getJsonArray("entries");
+				for (int j = 0; j < arr.size(); j++) {
+					JsonObject entryObject = arr.getJsonObject(j);
+					EntryType type = EntryType.valueOf(entryObject.getString("type"));
+					Entry entry = EntryType.values()[type.ordinal()].getDecoder().decode(entryObject);
+					EntryOperation operation = operations[type.ordinal()][operationCode];
+					if (operation == null) {
+						operation = new EntryOperation(operationCode);
+						operations[type.ordinal()][operationCode] = operation;
+					}
+					operation.getEntries().add(entry);
+				}
 			}
-			return new EntryOperation(operation, entries);
+			return operations;
 		} catch (JsonException | NullPointerException e) {
 			throw new DecodeException(s, Throwables.getStackTraceAsString(e));
 		}
