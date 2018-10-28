@@ -26,3 +26,4 @@ target/
 .project
 .classpath
 /build/
+WebContent/WEB-INF/twitter_tokens.xml
