@@ -11,8 +11,8 @@ public class TwitterDecoder implements EntryDecoder {
 
 	@Override
 	public Entry decode(JsonObject o) {
-		long userId = o.getJsonNumber("user_id").longValue();
-		MediaType mediaType = MediaType.values()[o.getInt("mediaType")];
+		String userId = o.getString("userId");
+		MediaType mediaType = MediaType.valueOf(o.getString("mediaType"));
 		JsonArray arr = o.getJsonArray("phrases");
 		String[] phrases = new String[arr.size()];
 		for (int i = 0; i < arr.size(); i++) {
