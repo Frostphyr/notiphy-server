@@ -1,26 +1,33 @@
 package com.frostphyr.notiphy;
 
-import com.frostphyr.notiphy.twitter.TwitterDecoder;
-import com.frostphyr.notiphy.twitter.TwitterRelay;
+import com.frostphyr.notiphy.twitter.TwitterClient;
+import com.frostphyr.notiphy.twitter.TwitterEntryDecoder;
+import com.frostphyr.notiphy.twitter.TwitterProcessor;
 
 public enum EntryType {
 	
-	TWITTER(new TwitterDecoder(), new TwitterRelay());
+	TWITTER(new TwitterEntryDecoder(), new TwitterClient(), new TwitterProcessor());
 	
 	private final EntryDecoder decoder;
-	private final EntryRelay relay;
+	private final EntryClient<?> client;
+	private final Processor<?> processor;
 	
-	private EntryType(EntryDecoder decoder, EntryRelay relay) {
+	private EntryType(EntryDecoder decoder, EntryClient<?> client, Processor<?> processor) {
 		this.decoder = decoder;
-		this.relay = relay;
+		this.client = client;
+		this.processor = processor;
 	}
 	
 	public EntryDecoder getDecoder() {
 		return decoder;
 	}
 	
-	public EntryRelay getRelay() {
-		return relay;
+	public EntryClient<?> getClient() {
+		return client;
+	}
+	
+	public Processor<?> getProcessor() {
+		return processor;
 	}
 
 }

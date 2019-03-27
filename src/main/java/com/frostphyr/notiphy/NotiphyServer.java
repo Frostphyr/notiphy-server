@@ -8,6 +8,7 @@ import javax.websocket.PongMessage;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -23,10 +24,16 @@ public class NotiphyServer {
 	
 	static {
 		for (EntryType e : EntryType.values()) {
-			if (!e.getRelay().init()) {
+			if (!init(e)) {
 				System.exit(0);
 			}
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private static <T extends Processor<?>> boolean init(EntryType e) {
+		EntryClient<T> client = (EntryClient<T>) e.getClient();
+		return client.init((T) e.getProcessor());
 	}
 	
 	@OnOpen
@@ -38,7 +45,7 @@ public class NotiphyServer {
 	public void onMessage(Session session, EntryOperation[][] operations) {
 		if (operations != null) {
 			for (int i = 0; i < operations.length; i++) {
-				EntryType.values()[i].getRelay().performOperations(session, operations[i]);
+				EntryType.values()[i].getProcessor().performOperations(session, operations[i]);
 			}
 		}
 	}
@@ -52,13 +59,13 @@ public class NotiphyServer {
 	public void onClose(Session session) {
 		heartbeatManager.stop(session);
 		for (EntryType t : EntryType.values()) {
-			t.getRelay().removeAll(session);
+			t.getProcessor().removeAll(session);
 		}
 	}
 	
 	@OnError
 	public void onError(Throwable throwable) {
-		logger.error(throwable);
+		logger.error("onError:" + ExceptionUtils.getStackTrace(throwable));
 	}
 
 }

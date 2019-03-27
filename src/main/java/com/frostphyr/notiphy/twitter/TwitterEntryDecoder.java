@@ -7,7 +7,7 @@ import com.frostphyr.notiphy.Entry;
 import com.frostphyr.notiphy.EntryDecoder;
 import com.frostphyr.notiphy.MediaType;
 
-public class TwitterDecoder implements EntryDecoder {
+public class TwitterEntryDecoder implements EntryDecoder {
 
 	@Override
 	public Entry decode(JsonObject o) {
