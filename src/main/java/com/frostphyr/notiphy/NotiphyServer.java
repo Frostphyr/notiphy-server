@@ -31,7 +31,7 @@ public class NotiphyServer {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static <T extends Processor<?>> boolean init(EntryType e) {
+	private static <T extends Processor<?, ?>> boolean init(EntryType e) {
 		EntryClient<T> client = (EntryClient<T>) e.getClient();
 		return client.init((T) e.getProcessor());
 	}

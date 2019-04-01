@@ -6,10 +6,11 @@ import javax.json.JsonObjectBuilder;
 
 import com.frostphyr.notiphy.EntryType;
 import com.frostphyr.notiphy.Media;
+import com.frostphyr.notiphy.MessageEncoder;
 
-public class TwitterForwardEncoder {
+public class TwitterMessageEncoder implements MessageEncoder<TwitterMessage> {
 	
-	public static String createForwardMessage(TwitterMessage message) {
+	public String encode(TwitterMessage message) {
 		JsonObjectBuilder builder = Json.createObjectBuilder()
 				.add("type", EntryType.TWITTER.toString())
 				.add("id", message.getId())

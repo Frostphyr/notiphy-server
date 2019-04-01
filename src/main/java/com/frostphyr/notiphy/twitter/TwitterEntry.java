@@ -29,11 +29,6 @@ public class TwitterEntry implements Entry {
 	public String[] getPhrases() {
 		return phrases;
 	}
-
-	@Override
-	public int getType() {
-		return 0;
-	}
 	
 	@Override
 	public boolean equals(Object o) {
