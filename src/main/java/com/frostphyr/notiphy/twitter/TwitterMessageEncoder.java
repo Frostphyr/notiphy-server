@@ -16,7 +16,8 @@ public class TwitterMessageEncoder implements MessageEncoder<TwitterMessage> {
 				.add("id", message.getId())
 				.add("createdAt", message.getCreatedAt())
 				.add("username", message.getUsername())
-				.add("text", message.getText());
+				.add("text", message.getText())
+				.add("nsfw", message.isNsfw());
 				
 		if (message.getMedia() != null) {
 			JsonArrayBuilder mediaArrayBuilder = Json.createArrayBuilder();

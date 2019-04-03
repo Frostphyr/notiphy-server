@@ -13,6 +13,7 @@ public class TwitterMessage implements Message {
 	private String text;
 	private MediaType mediaType;
 	private Media[] media;
+	private boolean nsfw;
 	
 	private TwitterMessage() {
 	}
@@ -43,6 +44,10 @@ public class TwitterMessage implements Message {
 	
 	public Media[] getMedia() {
 		return media;
+	}
+	
+	public boolean isNsfw() {
+		return nsfw;
 	}
 
 	public static class Builder {
@@ -81,6 +86,11 @@ public class TwitterMessage implements Message {
 	
 		public Builder setMedia(Media[] media) {
 			message.media = media;
+			return this;
+		}
+		
+		public Builder setNsfw(boolean nsfw) {
+			message.nsfw = nsfw;
 			return this;
 		}
 		

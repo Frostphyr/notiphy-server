@@ -29,7 +29,10 @@ public class TwitterMessageDecoder implements MessageDecoder<TwitterMessage> {
 					.setUsername(user.getString("screen_name"))
 					.setText(obj.containsKey("extended_tweet") ? 
 							getDisplayText("full_text", obj.getJsonObject("extended_tweet")) : 
-							getDisplayText("text", obj));
+							getDisplayText("text", obj))
+					.setNsfw(obj.containsKey("possibly_sensitive") ? 
+							obj.getBoolean("possibly_sensitive") :
+							false);
 			
 			MediaType mediaType = MediaType.NONE;
 			if (obj.containsKey("extended_entities")) {
