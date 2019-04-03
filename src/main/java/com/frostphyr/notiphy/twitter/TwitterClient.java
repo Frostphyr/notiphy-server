@@ -15,6 +15,8 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import com.frostphyr.notiphy.EntryClient;
+import com.frostphyr.notiphy.MessageDecoder;
+import com.frostphyr.notiphy.MessageEncoder;
 import com.frostphyr.notiphy.util.IOUtils;
 import com.google.common.base.Joiner;
 import com.twitter.hbc.ClientBuilder;
@@ -26,8 +28,8 @@ import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 
-public class TwitterClient implements EntryClient<TwitterProcessor> {
-	
+public class TwitterClient extends EntryClient {
+
 	private static final Logger logger = LogManager.getLogger(TwitterClient.class);
 	
 	private static final long MESSAGE_QUEUE_TIMEOUT_MS = 1000;
@@ -36,17 +38,23 @@ public class TwitterClient implements EntryClient<TwitterProcessor> {
 	private static final String MESSAGE_SHUTDOWN = "NotiphyShutdown";
 	
 	private BlockingQueue<String> messageQueue = new LinkedBlockingQueue<>();
-	private TwitterProcessor processor;
 	private ExecutorService executor;
 	private Authentication auth;
+	private TwitterEntryCollection entries;
+	
+	public TwitterClient(MessageDecoder<TwitterMessage> messageDecoder, MessageEncoder<TwitterMessage> messageEncoder,
+			TwitterEntryCollection entries) {
+		super(messageDecoder, messageEncoder, entries);
+		
+		this.entries = entries;
+	}
 	
 	@Override
-	public boolean init(TwitterProcessor processor) {
-		this.processor = processor;
-		processor.addListener(() -> {
+	public boolean init() {
+		entries.addListener(() -> {
 			if (executor != null && !executor.isShutdown()) {
 				messageQueue.offer(MESSAGE_RESTART);
-			} else if (processor.getEntryCount() > 0) {
+			} else if (entries.getCount() > 0) {
 				start();
 			} else {
 				messageQueue.offer(MESSAGE_SHUTDOWN);
@@ -74,8 +82,8 @@ public class TwitterClient implements EntryClient<TwitterProcessor> {
 	
 	private Client createClient() {
 		StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
-		synchronized (processor) {
-			endpoint.addPostParameter(Constants.FOLLOW_PARAM, Joiner.on(',').join(processor.getUsers()));
+		synchronized (entries) {
+			endpoint.addPostParameter(Constants.FOLLOW_PARAM, Joiner.on(',').join(entries.getUsers()));
 		}
 		
 		return new ClientBuilder()
@@ -99,7 +107,7 @@ public class TwitterClient implements EntryClient<TwitterProcessor> {
 							client = createClient();
 							client.connect();
 						} else if (message.equals(MESSAGE_SHUTDOWN)) {
-							synchronized (processor) {
+							synchronized (entries) {
 								if (messageQueue.size() == 0) {
 									client.stop();
 									executor.shutdown();
@@ -107,7 +115,7 @@ public class TwitterClient implements EntryClient<TwitterProcessor> {
 							}
 							return;
 						} else {
-							processor.processMessage(message);
+							processEncodedMessage(message);
 						}
 					}
 				} catch (InterruptedException e) {

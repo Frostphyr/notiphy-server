@@ -1,5 +1,6 @@
 package com.frostphyr.notiphy.twitter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,24 +9,17 @@ import java.util.Set;
 import javax.websocket.Session;
 
 import com.frostphyr.notiphy.Entry;
+import com.frostphyr.notiphy.EntryCollection;
 import com.frostphyr.notiphy.EntryOperation;
-import com.frostphyr.notiphy.MessageDecoder;
-import com.frostphyr.notiphy.MessageEncoder;
-import com.frostphyr.notiphy.Processor;
 import com.frostphyr.notiphy.SessionEntry;
 import com.frostphyr.notiphy.util.CollectionUtils;
 import com.frostphyr.notiphy.util.TextUtils;
 
-public class TwitterProcessor extends Processor<TwitterEntry, TwitterMessage> {
+public class TwitterEntryCollection extends EntryCollection<TwitterEntry, TwitterMessage> {
 
 	private Map<String, Set<TwitterEntry>> sessionEntries = new HashMap<>();
 	private Map<String, Set<SessionEntry<TwitterEntry>>> userEntries = new HashMap<>();
 	private int count;
-	
-	public TwitterProcessor(MessageDecoder<TwitterMessage> messageDecoder,
-			MessageEncoder<TwitterMessage> messageEncoder) {
-		super(messageDecoder, messageEncoder);
-	}
 
 	@Override
 	public synchronized void performOperations(Session session, EntryOperation[] operations) {
@@ -62,8 +56,10 @@ public class TwitterProcessor extends Processor<TwitterEntry, TwitterMessage> {
 	}
 	
 	@Override
-	public synchronized void processMessage(TwitterMessage message) {
-		processMessage(userEntries.get(message.getUserId()), message);
+	public synchronized List<SessionEntry<TwitterEntry>> getMatches(TwitterMessage message) {
+		List<SessionEntry<TwitterEntry>> entries = new ArrayList<>();
+		getMatches(entries, userEntries.get(message.getUserId()), message);
+		return entries;
 	}
 	
 	@Override
@@ -76,7 +72,7 @@ public class TwitterProcessor extends Processor<TwitterEntry, TwitterMessage> {
 		return userEntries.keySet();
 	}
 	
-	public int getEntryCount() {
+	public int getCount() {
 		return count;
 	}
 	

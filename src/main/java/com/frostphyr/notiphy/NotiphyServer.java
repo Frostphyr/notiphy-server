@@ -24,16 +24,10 @@ public class NotiphyServer {
 	
 	static {
 		for (EntryType e : EntryType.values()) {
-			if (!init(e)) {
+			if (!e.getClient().init()) {
 				System.exit(0);
 			}
 		}
-	}
-	
-	@SuppressWarnings("unchecked")
-	private static <T extends Processor<?, ?>> boolean init(EntryType e) {
-		EntryClient<T> client = (EntryClient<T>) e.getClient();
-		return client.init((T) e.getProcessor());
 	}
 	
 	@OnOpen
@@ -45,7 +39,7 @@ public class NotiphyServer {
 	public void onMessage(Session session, EntryOperation[][] operations) {
 		if (operations != null) {
 			for (int i = 0; i < operations.length; i++) {
-				EntryType.values()[i].getProcessor().performOperations(session, operations[i]);
+				EntryType.values()[i].getClient().getEntries().performOperations(session, operations[i]);
 			}
 		}
 	}
@@ -59,7 +53,7 @@ public class NotiphyServer {
 	public void onClose(Session session) {
 		heartbeatManager.stop(session);
 		for (EntryType t : EntryType.values()) {
-			t.getProcessor().removeAll(session);
+			t.getClient().getEntries().removeAll(session);
 		}
 	}
 	

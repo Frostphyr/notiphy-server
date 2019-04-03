@@ -1,9 +1,10 @@
 package com.frostphyr.notiphy.twitter;
 
 import com.frostphyr.notiphy.MediaType;
+import com.frostphyr.notiphy.Message;
 import com.frostphyr.notiphy.Media;
 
-public class TwitterMessage {
+public class TwitterMessage implements Message {
 
 	private String id;
 	private String userId;

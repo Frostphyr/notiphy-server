@@ -49,7 +49,7 @@ public class EntryOperationDecoder implements Decoder.Text<EntryOperation[][]> {
 				}
 			}
 			return operations;
-		} catch (JsonException | NullPointerException e) {
+		} catch (JsonException | NullPointerException | IllegalArgumentException e) {
 			throw new DecodeException(s, Throwables.getStackTraceAsString(e));
 		}
 	}

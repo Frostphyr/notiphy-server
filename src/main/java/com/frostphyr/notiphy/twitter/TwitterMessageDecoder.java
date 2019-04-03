@@ -6,7 +6,6 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonException;
 import javax.json.JsonObject;
-import javax.json.JsonReader;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,8 +21,7 @@ public class TwitterMessageDecoder implements MessageDecoder<TwitterMessage> {
 	public TwitterMessage decode(String encodedMessage) {
 		try {
 			TwitterMessage.Builder builder = new TwitterMessage.Builder();
-			JsonReader reader = Json.createReader(new StringReader(encodedMessage));
-			JsonObject obj = reader.readObject();
+			JsonObject obj = Json.createReader(new StringReader(encodedMessage)).readObject();
 			builder.setId(obj.getString("id_str"));
 			JsonObject user = obj.getJsonObject("user");
 			builder.setUserId(user.getString("id_str"))
