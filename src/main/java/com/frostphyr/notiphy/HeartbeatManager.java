@@ -2,6 +2,7 @@ package com.frostphyr.notiphy;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -53,13 +54,12 @@ public class HeartbeatManager {
 		private int missedPongs;
 		private boolean pong = true;
 		
-		
 		public Heartbeat(Session session) {
 			this.session = session;
 		}
 		
 		public void onPong(PongMessage message) {
-			if (DATA.equals(message.getApplicationData())) {
+			if (Arrays.equals(DATA.array(), message.getApplicationData().array())) {
 				synchronized (LOCK) {
 					pong = true;
 					missedPongs = 0;
@@ -70,15 +70,15 @@ public class HeartbeatManager {
 		@Override
 		public void run() {
 			synchronized (LOCK) {
-				if (pong) {
+				if (!pong && ++missedPongs >= MISSED_PONG_LIMIT) {
+					try {
+						session.close();
+					} catch (IOException e) {
+					}
+				} else {
 					pong = false;
 					try {
 						session.getBasicRemote().sendPing(DATA);
-					} catch (IllegalArgumentException | IOException e) {
-					}
-				} else if (++missedPongs >= MISSED_PONG_LIMIT) {
-					try {
-						session.close();
 					} catch (IOException e) {
 					}
 				}
