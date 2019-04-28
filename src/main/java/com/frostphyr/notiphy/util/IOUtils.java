@@ -1,8 +1,11 @@
 package com.frostphyr.notiphy.util;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -31,6 +34,20 @@ public final class IOUtils {
 	public static void writeBodyParameters(HttpURLConnection connection, List<NameValuePair> params) throws IOException {
 		try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream(), CHARSET))) {
 			writer.write(getQuery(params));
+		}
+	}
+	
+	public static String readString(InputStream in) throws IOException {
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+			StringBuilder builder = new StringBuilder();
+			String line;
+			while ((line = reader.readLine()) != null) {
+				if (builder.length() > 0) {
+					builder.append(System.lineSeparator());
+				}
+				builder.append(line);
+			}
+			return builder.toString();
 		}
 	}
 	

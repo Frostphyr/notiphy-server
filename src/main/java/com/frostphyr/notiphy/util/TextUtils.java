@@ -12,5 +12,21 @@ public class TextUtils {
 		}
 		return true;
 	}
+	
+	public static boolean contains(String[] text, String[] phrases) {
+		for (String p : phrases) {
+			boolean contains = false;
+			for (String t : text) {
+				if (t != null && StringUtils.containsIgnoreCase(t, p)) {
+					contains = true;
+				}
+			}
+			
+			if (contains == false) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 }

@@ -32,6 +32,7 @@ public class NotiphyServer {
 	
 	@OnOpen
 	public void onOpen(Session session) {
+		logger.error("onOpen: " + session.getId());
 		heartbeatManager.start(session);
 	}
 	
@@ -51,6 +52,7 @@ public class NotiphyServer {
 	
 	@OnClose
 	public void onClose(Session session) {
+		logger.error("onClose: " + session.getId());
 		heartbeatManager.stop(session);
 		for (EntryType t : EntryType.values()) {
 			t.getClient().getEntries().removeAll(session);

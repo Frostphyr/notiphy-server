@@ -27,3 +27,4 @@ target/
 .classpath
 /build/
 WebContent/WEB-INF/twitter_tokens.xml
+WebContent/WEB-INF/reddit_tokens.xml
