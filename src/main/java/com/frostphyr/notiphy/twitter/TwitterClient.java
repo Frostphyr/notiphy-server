@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -38,7 +39,8 @@ public class TwitterClient extends EntryClient {
 	private static final String MESSAGE_SHUTDOWN = "NotiphyShutdown";
 	
 	private BlockingQueue<String> messageQueue = new LinkedBlockingQueue<>();
-	private ExecutorService executor;
+	private ExecutorService executor = Executors.newSingleThreadExecutor();
+	private Future<?> executorFuture;
 	private Authentication auth;
 	private TwitterEntryCollection entries;
 	
@@ -52,12 +54,10 @@ public class TwitterClient extends EntryClient {
 	@Override
 	public boolean init() {
 		entries.addListener(() -> {
-			if (executor != null && !executor.isShutdown()) {
-				messageQueue.offer(MESSAGE_RESTART);
+			if (executorFuture != null && !executorFuture.isDone()) {
+				messageQueue.offer(entries.getCount() > 0 ? MESSAGE_RESTART : MESSAGE_SHUTDOWN);
 			} else if (entries.getCount() > 0) {
 				start();
-			} else {
-				messageQueue.offer(MESSAGE_SHUTDOWN);
 			}
 		});
 		
@@ -76,8 +76,7 @@ public class TwitterClient extends EntryClient {
 	}
 	
 	private void start() {
-		executor = Executors.newSingleThreadExecutor();
-		executor.execute(executorLoop);
+		executorFuture = executor.submit(executorLoop);
 	}
 	
 	private Client createClient() {
@@ -110,15 +109,17 @@ public class TwitterClient extends EntryClient {
 							synchronized (entries) {
 								if (messageQueue.size() == 0) {
 									client.stop();
-									executor.shutdown();
+									Thread.currentThread().interrupt();
+									return;
 								}
 							}
-							return;
 						} else {
 							processEncodedMessage(message);
 						}
 					}
 				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					return;
 				}
 			}
 		}
