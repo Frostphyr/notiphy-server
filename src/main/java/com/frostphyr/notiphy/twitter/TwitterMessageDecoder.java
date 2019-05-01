@@ -1,6 +1,9 @@
 package com.frostphyr.notiphy.twitter;
 
 import java.io.StringReader;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -17,6 +20,7 @@ import com.frostphyr.notiphy.MessageDecoder;
 public class TwitterMessageDecoder implements MessageDecoder<TwitterMessage> {
 	
 	private static final Logger logger = LogManager.getLogger(TwitterMessageDecoder.class);
+	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy");
 	
 	public TwitterMessage decode(String encodedMessage) {
 		try {
@@ -25,7 +29,7 @@ public class TwitterMessageDecoder implements MessageDecoder<TwitterMessage> {
 			builder.setId(obj.getString("id_str"));
 			JsonObject user = obj.getJsonObject("user");
 			builder.setUserId(user.getString("id_str"))
-					.setCreatedAt(obj.getString("created_at"))
+					.setCreatedAt(Long.toString(DATE_FORMAT.parse(obj.getString("created_at")).getTime()))
 					.setUsername(user.getString("screen_name"))
 					.setText(obj.containsKey("extended_tweet") ? 
 							getDisplayText("full_text", obj.getJsonObject("extended_tweet")) : 
@@ -76,7 +80,7 @@ public class TwitterMessageDecoder implements MessageDecoder<TwitterMessage> {
 				}
 			}
 			return builder.setMediaType(mediaType).build();
-		} catch (JsonException e) {
+		} catch (JsonException | ParseException e) {
 			logger.error(e);
 			return null;
 		}

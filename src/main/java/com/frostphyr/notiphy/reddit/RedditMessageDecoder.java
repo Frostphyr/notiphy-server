@@ -35,7 +35,7 @@ public class RedditMessageDecoder implements MessageDecoder<RedditMessage> {
 						.setUrl("https://reddit.com" + data.getString("permalink"))
 						.setNsfw(data.getBoolean("over_18"))
 						.setPinned(data.getBoolean("pinned"))
-						.setCreatedAt(data.getJsonNumber("created_utc").bigIntegerValue().toString());
+						.setCreatedAt(Long.toString(data.getJsonNumber("created_utc").longValue() * 1000));
 				if (!data.getBoolean("is_self")) {
 					builder.setLink(data.getString("url"));
 					builder.setVideo(data.getBoolean("is_video"));
