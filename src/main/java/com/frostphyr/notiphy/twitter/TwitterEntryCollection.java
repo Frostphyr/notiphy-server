@@ -8,51 +8,48 @@ import java.util.Set;
 
 import javax.websocket.Session;
 
-import com.frostphyr.notiphy.Entry;
 import com.frostphyr.notiphy.EntryCollection;
-import com.frostphyr.notiphy.EntryOperation;
 import com.frostphyr.notiphy.SessionEntry;
 import com.frostphyr.notiphy.util.CollectionUtils;
 import com.frostphyr.notiphy.util.TextUtils;
 
 public class TwitterEntryCollection extends EntryCollection<TwitterEntry, TwitterMessage> {
 
-	private Map<String, Set<TwitterEntry>> sessionEntries = new HashMap<>();
 	private Map<String, Set<SessionEntry<TwitterEntry>>> userEntries = new HashMap<>();
-	private int count;
-
+	
 	@Override
-	public synchronized void performOperations(Session session, EntryOperation[] operations) {
-		boolean addModified = false;
-		boolean removeModified = false;
-		if (operations[EntryOperation.REMOVE] != null) {
-			removeModified = remove(session, operations[EntryOperation.REMOVE].getEntries());
+	public synchronized boolean add(Session session, TwitterEntry entry) {
+		if (super.add(session, entry)) {
+			Set<SessionEntry<TwitterEntry>> sessionEntries = CollectionUtils.getOrCreate(userEntries, entry.getUserId());
+			sessionEntries.add(new SessionEntry<TwitterEntry>(session, entry));
+			return true;
 		}
-		if (operations[EntryOperation.ADD] != null) {
-			addModified = add(session, operations[EntryOperation.ADD].getEntries());
-		}
-		
-		if (addModified || removeModified) {
-			notifyListeners();
-		}
+		return false;
 	}
-
+	
 	@Override
-	public synchronized void removeAll(Session session) {
-		Set<TwitterEntry> entries = sessionEntries.remove(session.getId());
+	public synchronized boolean remove(Session session, TwitterEntry entry) {
+		return super.remove(session, entry) ? removeUserEntry(session, entry) : false;
+	}
+	
+	@Override
+	public synchronized Set<TwitterEntry> removeAll(Session session) {
+		Set<TwitterEntry> entries = super.removeAll(session);
 		if (entries != null) {
-			boolean modified = false;
 			for (TwitterEntry e : entries) {
-				TwitterEntry te = (TwitterEntry) e;
-				if (userEntries.get(te.getUserId()).remove(new SessionEntry<TwitterEntry>(session, te))) {
-					modified = true;
-				}
-			}
-			
-			if (modified) {
-				notifyListeners();
+				removeUserEntry(session, e);
 			}
 		}
+		return entries;
+	}
+	
+	private boolean removeUserEntry(Session session, TwitterEntry entry) {
+		Set<SessionEntry<TwitterEntry>> entries = userEntries.get(entry.getUserId());
+		if (entries != null) {
+			entries.remove(new SessionEntry<TwitterEntry>(session, entry));
+			return true;
+		}
+		return false;
 	}
 	
 	@Override
@@ -70,42 +67,6 @@ public class TwitterEntryCollection extends EntryCollection<TwitterEntry, Twitte
 	
 	public Set<String> getUsers() {
 		return userEntries.keySet();
-	}
-	
-	public int getCount() {
-		return count;
-	}
-	
-	private boolean add(Session session, List<Entry> entries) {
-		Set<TwitterEntry> se = CollectionUtils.getOrCreate(sessionEntries, session.getId());
-		boolean modified = false;
-		for (Entry e : entries) {
-			TwitterEntry entry = (TwitterEntry) e;
-			if (se.add(entry)) {
-				Set<SessionEntry<TwitterEntry>> sessionEntries = CollectionUtils.getOrCreate(userEntries, entry.getUserId());
-				sessionEntries.add(new SessionEntry<TwitterEntry>(session, entry));
-				count++;
-				modified = true;
-			}
-		}
-		return modified;
-	}
-
-	private boolean remove(Session session, List<Entry> entries) {
-		Set<TwitterEntry> entrySet = sessionEntries.get(session.getId());
-		if (entrySet != null) {
-			boolean modified = false;
-			for (Entry e : entries) {
-				if (entrySet.remove(e)) {
-					TwitterEntry te = (TwitterEntry) e;
-					userEntries.get(te.getUserId()).remove(new SessionEntry<TwitterEntry>(session, te));
-					count--;
-					modified = true;
-				}
-			}
-			return modified;
-		}
-		return false;
 	}
 
 }
