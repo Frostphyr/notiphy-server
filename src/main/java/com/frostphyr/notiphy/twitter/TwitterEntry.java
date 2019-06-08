@@ -45,5 +45,26 @@ public class TwitterEntry implements Entry {
 	public int hashCode() {
 		return Objects.hash(userId, mediaType, Arrays.hashCode(phrases));
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("TwitterEntry[userId=");
+		builder.append(userId);
+		builder.append(", mediaType=");
+		builder.append(mediaType);
+		if (phrases.length > 0) {
+			builder.append(", phrases=String[");
+			for (int i = 0; i < phrases.length; i++) {
+				builder.append(phrases[i]);
+				if (i != phrases.length - 1) {
+					builder.append(", ");
+				}
+			}
+			builder.append("]");
+		}
+		builder.append("]");
+		return builder.toString();
+	}
 
 }

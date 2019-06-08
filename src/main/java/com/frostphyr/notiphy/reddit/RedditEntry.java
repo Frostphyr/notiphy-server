@@ -51,5 +51,26 @@ public class RedditEntry implements Entry {
 	public int hashCode() {
 		return Objects.hash(user, subreddit, Arrays.hashCode(phrases), postType);
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("RedditEntry[");
+		builder.append(user != null ? "user=" + user : "subreddit=" + subreddit);
+		builder.append(", postType=");
+		builder.append(postType);
+		if (phrases.length > 0) {
+			builder.append(", phrases=String[");
+			for (int i = 0; i < phrases.length; i++) {
+				builder.append(phrases[i]);
+				if (i != phrases.length - 1) {
+					builder.append(", ");
+				}
+			}
+			builder.append("]");
+		}
+		builder.append("]");
+		return builder.toString();
+	}
 
 }

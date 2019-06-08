@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" packages="com.frostphyr">
+	<Appenders>
+		<Custom name="Explorer" class="com.frostphyr.notiphy.NotiphyServer" appendInstance="getExplorer">
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+		</Custom>
+	</Appenders>
+	<Loggers>
+		<Root level="ALL">
+			<AppenderRef ref="Explorer"/>
+		</Root>
+	</Loggers>
+</Configuration>

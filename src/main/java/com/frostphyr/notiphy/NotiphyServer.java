@@ -12,12 +12,15 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.frostphyr.notiphy.ui.ServerExplorer;
+
 @ServerEndpoint(
 	value = "/server",
 	decoders = {EntryOperationDecoder.class}
 )
 public class NotiphyServer {
 	
+	private static final ServerExplorer explorer = new ServerExplorer();
 	private static final Logger logger = LogManager.getLogger(NotiphyServer.class);
 	
 	private HeartbeatManager heartbeatManager = new HeartbeatManager();
@@ -28,12 +31,18 @@ public class NotiphyServer {
 				System.exit(0);
 			}
 		}
+		
+		explorer.show();
+	}
+	
+	public static ServerExplorer getExplorer() {
+		return explorer;
 	}
 	
 	@OnOpen
 	public void onOpen(Session session) {
-		logger.error("onOpen: " + session.getId());
 		heartbeatManager.start(session);
+		explorer.addSession(session.getId());
 	}
 	
 	@OnMessage
@@ -52,8 +61,8 @@ public class NotiphyServer {
 	
 	@OnClose
 	public void onClose(Session session) {
-		logger.error("onClose: " + session.getId());
 		heartbeatManager.stop(session);
+		explorer.removeSession(session.getId());
 		for (EntryType t : EntryType.values()) {
 			t.getClient().getEntries().removeAll(session);
 		}
@@ -61,7 +70,7 @@ public class NotiphyServer {
 	
 	@OnError
 	public void onError(Throwable throwable) {
-		logger.error("onError:" + ExceptionUtils.getStackTrace(throwable));
+		logger.error(ExceptionUtils.getStackTrace(throwable));
 	}
 
 }
