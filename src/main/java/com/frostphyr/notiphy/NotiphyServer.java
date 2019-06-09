@@ -1,5 +1,8 @@
 package com.frostphyr.notiphy;
 
+import java.util.List;
+import java.util.ListIterator;
+
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -19,6 +22,8 @@ import com.frostphyr.notiphy.ui.ServerExplorer;
 	decoders = {EntryOperationDecoder.class}
 )
 public class NotiphyServer {
+	
+	public static final int MAX_ENTRIES = 25;
 	
 	private static final ServerExplorer explorer = new ServerExplorer();
 	private static final Logger logger = LogManager.getLogger(NotiphyServer.class);
@@ -48,10 +53,39 @@ public class NotiphyServer {
 	@OnMessage
 	public void onMessage(Session session, EntryOperation[][] operations) {
 		if (operations != null) {
+			int count = 0;
 			for (int i = 0; i < operations.length; i++) {
-				EntryType.values()[i].getClient().getEntries().performOperations(session, operations[i]);
+				EntryCollection<?, ?> entries = EntryType.values()[i].getClient().getEntries();
+				if (operations[i][EntryOperation.ADD] != null) {
+					entries.addAll(session, operations[i][EntryOperation.ADD].getEntries());
+				}
+				if (operations[i][EntryOperation.REMOVE] != null) {
+					entries.removeAll(session, operations[i][EntryOperation.REMOVE].getEntries());
+				}
+				count += entries.getCount(session);
+			}
+			
+			if (count > MAX_ENTRIES) {
+				for (int i = operations.length - 1; i >= 0; i--) {
+					if (operations[i][EntryOperation.ADD] != null) {
+						EntryCollection<?, ?> collection = EntryType.values()[i].getClient().getEntries();
+						List<Entry> entries = operations[i][EntryOperation.ADD].getEntries();
+						ListIterator<Entry> it = entries.listIterator(entries.size());
+						while (it.hasPrevious() && count > MAX_ENTRIES) {
+							if (remove(session, collection, it.previous())) {
+								count--;
+							}
+						}
+					}
+				}
 			}
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <E extends Entry> boolean remove(Session session, EntryCollection<E, ?> collection, Entry entry) {
+		explorer.append("Removed: " + entry);
+		return collection.remove(session, (E) entry);
 	}
 	
 	@OnMessage
