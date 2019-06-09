@@ -13,10 +13,13 @@ public class TwitterEntryDecoder implements EntryDecoder {
 	public Entry decode(JsonObject o) {
 		String userId = o.getString("userId");
 		MediaType mediaType = MediaType.valueOf(o.getString("mediaType"));
-		JsonArray arr = o.getJsonArray("phrases");
-		String[] phrases = new String[arr.size()];
-		for (int i = 0; i < arr.size(); i++) {
-			phrases[i] = arr.getString(i);
+		String[] phrases = null;
+		if (o.containsKey("phrases")) {
+			JsonArray arr = o.getJsonArray("phrases");
+			phrases = new String[arr.size()];
+			for (int i = 0; i < arr.size(); i++) {
+				phrases[i] = arr.getString(i);
+			}
 		}
 		return new TwitterEntry(userId, mediaType, phrases);
 	}
