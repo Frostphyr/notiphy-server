@@ -44,7 +44,7 @@ public class ServerExplorer {
 			sidePanel.add(createSidePanel(sessionList, viewButton, exitButton), SESSION_LIST_PANEL_NAME);
 			
 			JButton backButton = new JButton("Back");
-			JButton refreshButton = new JButton("Exit");
+			JButton refreshButton = new JButton("Refresh");
 			sidePanel.add(createSidePanel(entryList, backButton, refreshButton), ENTRY_LIST_PANEL_NAME);
 			
 			backButton.addActionListener((e) -> showSessions());
