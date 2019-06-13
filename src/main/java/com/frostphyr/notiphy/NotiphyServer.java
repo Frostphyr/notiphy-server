@@ -79,6 +79,10 @@ public class NotiphyServer {
 					}
 				}
 			}
+			
+			for (EntryType t : EntryType.values()) {
+				t.getClient().getEntries().finishModifications();
+			}
 		}
 	}
 	
