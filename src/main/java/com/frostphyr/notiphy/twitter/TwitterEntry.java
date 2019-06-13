@@ -53,7 +53,7 @@ public class TwitterEntry implements Entry {
 		builder.append(userId);
 		builder.append(", mediaType=");
 		builder.append(mediaType);
-		if (phrases.length > 0) {
+		if (phrases != null && phrases.length > 0) {
 			builder.append(", phrases=String[");
 			for (int i = 0; i < phrases.length; i++) {
 				builder.append(phrases[i]);

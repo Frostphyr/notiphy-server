@@ -59,7 +59,7 @@ public class RedditEntry implements Entry {
 		builder.append(user != null ? "user=" + user : "subreddit=" + subreddit);
 		builder.append(", postType=");
 		builder.append(postType);
-		if (phrases.length > 0) {
+		if (phrases != null && phrases.length > 0) {
 			builder.append(", phrases=String[");
 			for (int i = 0; i < phrases.length; i++) {
 				builder.append(phrases[i]);
