@@ -1,5 +1,6 @@
 package com.frostphyr.notiphy;
 
+import java.io.EOFException;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -108,7 +109,9 @@ public class NotiphyServer {
 	
 	@OnError
 	public void onError(Throwable throwable) {
-		logger.error(ExceptionUtils.getStackTrace(throwable));
+		if (!(throwable instanceof EOFException)) {
+			logger.error(ExceptionUtils.getStackTrace(throwable));
+		}
 	}
 
 }
