@@ -38,7 +38,8 @@ public class RedditClient extends EntryClient {
 	private static final Logger logger = LogManager.getLogger(RedditClient.class);
 	
 	private static final String REDDIT_DOMAIN = "https://oauth.reddit.com";
-	private static final String DELETED_SELFTEXT = "[deleted]";
+	private static final String DELETED_TEXT = "&lt;p&gt;[deleted]&lt;/p&gt;";
+	private static final String REMOVED_TEXT = "&lt;p&gt;[removed]&lt;/p&gt;";
 	private static final String INITIAL_LIMIT_SUBREDDIT = "1";
 	private static final String INITIAL_LIMIT_USER = "5";
 	private static final double EXPIRES_IN_MULTIPLIER = 0.9;
@@ -245,8 +246,11 @@ public class RedditClient extends EntryClient {
 					}
 					return true;
 				}
+			} else {
+				logHttpError(connection, "processing new posts");
 			}
 		} catch (IOException e) {
+			logger.error(e);
 		}
 		return false;
 	}
@@ -267,12 +271,14 @@ public class RedditClient extends EntryClient {
 				RedditMessage message = decode(IOUtils.readString(connection.getInputStream()));
 				if (message != null && message.getPosts().size() > 0) {
 					RedditMessage.Post post = message.getPosts().get(0);
-					if (post.isPinned() || DELETED_SELFTEXT.equals(post.getText())) {
+					if (post.isPinned() || DELETED_TEXT.equals(post.getText()) || REMOVED_TEXT.equals(post.getText())) {
 						latestPosts.pop();
 					} else {
 						return true;
 					}
 				}
+			} else {
+				logHttpError(connection, "validating latest fullname");
 			}
 		}
 		return false;
