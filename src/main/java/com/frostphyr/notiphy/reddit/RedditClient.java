@@ -38,8 +38,8 @@ public class RedditClient extends EntryClient {
 	private static final Logger logger = LogManager.getLogger(RedditClient.class);
 	
 	private static final String REDDIT_DOMAIN = "https://oauth.reddit.com";
-	private static final String DELETED_TEXT = "&lt;p&gt;[deleted]&lt;/p&gt;";
-	private static final String REMOVED_TEXT = "&lt;p&gt;[removed]&lt;/p&gt;";
+	private static final String DELETED_TEXT = "[deleted]";
+	private static final String REMOVED_TEXT = "[removed]";
 	private static final String INITIAL_LIMIT_SUBREDDIT = "1";
 	private static final String INITIAL_LIMIT_USER = "5";
 	private static final double EXPIRES_IN_MULTIPLIER = 0.9;

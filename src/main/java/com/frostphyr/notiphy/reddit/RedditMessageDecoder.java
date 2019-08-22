@@ -21,8 +21,8 @@ public class RedditMessageDecoder implements MessageDecoder<RedditMessage> {
 	
 	private static final Logger logger = LogManager.getLogger(RedditMessageDecoder.class);
 	
-	private static final String TEXT_TRIM_START = "&lt;!-- SC_OFF --&gt;&lt;div class=\"md\"&gt;";
-	private static final String TEXT_TRIM_END = "\n&lt;/div&gt;&lt;!-- SC_ON --&gt;";
+	private static final String TEXT_TRIM_START = "&lt;!-- SC_OFF --&gt;&lt;div class=\"md\"&gt;&lt;p&gt;";
+	private static final String TEXT_TRIM_END = "&lt;/p&gt;\n&lt;/div&gt;&lt;!-- SC_ON --&gt;";
 	
 	@Override
 	public RedditMessage decode(String encodedMessage) {
