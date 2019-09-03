@@ -39,6 +39,7 @@ public class RedditMessageDecoder implements MessageDecoder<RedditMessage> {
 						.setUrl("https://reddit.com" + data.getString("permalink"))
 						.setNsfw(data.getBoolean("over_18"))
 						.setPinned(data.getBoolean("pinned"))
+						.setRobotIndexable(data.getBoolean("is_robot_indexable"))
 						.setCreatedAt(Long.toString(data.getJsonNumber("created_utc").longValue() * 1000));
 				JsonValue textElement = data.get("selftext_html");
 				if (textElement != JsonValue.NULL) {

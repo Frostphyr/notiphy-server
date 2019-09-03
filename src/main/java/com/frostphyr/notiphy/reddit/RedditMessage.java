@@ -29,6 +29,7 @@ public class RedditMessage implements Message {
 		private boolean video;
 		private boolean nsfw;
 		private boolean pinned;
+		private boolean robotIndexable;
 		
 		private Post() {
 		}
@@ -75,6 +76,10 @@ public class RedditMessage implements Message {
 		
 		public boolean isPinned() {
 			return pinned;
+		}
+		
+		public boolean isRobotIndexable() {
+			return robotIndexable;
 		}
 	
 		public static class Builder {
@@ -133,6 +138,11 @@ public class RedditMessage implements Message {
 			
 			public Builder setPinned(boolean pinned) {
 				post.pinned = pinned;
+				return this;
+			}
+			
+			public Builder setRobotIndexable(boolean robotIndexable) {
+				post.robotIndexable = robotIndexable;
 				return this;
 			}
 			

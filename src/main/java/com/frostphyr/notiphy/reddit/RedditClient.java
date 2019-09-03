@@ -271,7 +271,8 @@ public class RedditClient extends EntryClient {
 				RedditMessage message = decode(IOUtils.readString(connection.getInputStream()));
 				if (message != null && message.getPosts().size() > 0) {
 					RedditMessage.Post post = message.getPosts().get(0);
-					if (post.isPinned() || DELETED_TEXT.equals(post.getText()) || REMOVED_TEXT.equals(post.getText())) {
+					if (post.isPinned() || !post.isRobotIndexable() ||
+							DELETED_TEXT.equals(post.getText()) || REMOVED_TEXT.equals(post.getText())) {
 						latestPosts.pop();
 					} else {
 						return true;
