@@ -8,6 +8,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import javax.servlet.ServletContext;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.logging.log4j.LogManager;
@@ -52,7 +53,7 @@ public class TwitterClient extends EntryClient {
 	}
 	
 	@Override
-	public boolean init() {
+	public boolean init(ServletContext context) {
 		entries.addListener(() -> {
 			if (executorFuture != null && !executorFuture.isDone()) {
 				messageQueue.offer(entries.getCount() > 0 ? MESSAGE_RESTART : MESSAGE_SHUTDOWN);
@@ -61,9 +62,9 @@ public class TwitterClient extends EntryClient {
 			}
 		});
 		
-		Document doc;
+		Document doc = null;
 		try {
-			doc = IOUtils.parseDocument("WebContent/WEB-INF/twitter_tokens.xml");
+			doc = IOUtils.parseDocument(context.getRealPath("/WEB-INF/twitter_tokens.xml"));
 		} catch (SAXException | IOException | ParserConfigurationException e) {
 			logger.error(e);
 			return false;

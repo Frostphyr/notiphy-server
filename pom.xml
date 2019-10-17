@@ -6,9 +6,8 @@
   <packaging>war</packaging>
   
   <properties>
-    <maven.compiler.target>11</maven.compiler.target>
-    <maven.compiler.source>11</maven.compiler.source>
-    <failOnMissingWebXml>false</failOnMissingWebXml>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
   </properties>
   
   <dependencies>
@@ -30,7 +29,7 @@
     <dependency>
       <groupId>com.frostphyr</groupId>
       <artifactId>customappender</artifactId>
-      <version>1.0.0</version>
+      <version>1.1.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
@@ -41,6 +40,11 @@
       <groupId>com.miglayout</groupId>
       <artifactId>miglayout-swing</artifactId>
       <version>4.2</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jstl</artifactId>
+      <version>1.2</version>
     </dependency>
   </dependencies>
 </project>

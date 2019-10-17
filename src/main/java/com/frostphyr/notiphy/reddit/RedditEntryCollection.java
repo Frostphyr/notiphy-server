@@ -11,6 +11,8 @@ import javax.websocket.Session;
 
 import com.frostphyr.notiphy.EntryCollection;
 import com.frostphyr.notiphy.SessionEntry;
+import com.frostphyr.notiphy.manager.MapStatTracker;
+import com.frostphyr.notiphy.manager.StatTracker;
 import com.frostphyr.notiphy.util.FixedLinkedStack;
 import com.frostphyr.notiphy.util.TextUtils;
 
@@ -21,14 +23,19 @@ public class RedditEntryCollection extends EntryCollection<RedditEntry, RedditMe
 	private Map<String, Container> userEntries = new HashMap<>();
 	private Map<String, Container> subredditEntries = new HashMap<>();
 	
+	private StatTracker userTracker = new MapStatTracker("Reddit users", userEntries);
+	private StatTracker subredditTracker = new MapStatTracker("Subreddit users", subredditEntries);
+	
 	@Override
 	public synchronized boolean add(Session session, RedditEntry entry) {
 		if (super.add(session, entry)) {
 			SessionEntry<RedditEntry> sessionEntry = new SessionEntry<>(session, entry);
 			if (entry.getUser() != null) {
 				addToMap(userEntries, sessionEntry, entry.getUser());
+				userTracker.update();
 			} else if (entry.getSubreddit() != null) {
 				addToMap(subredditEntries, sessionEntry, entry.getSubreddit());
+				subredditTracker.update();
 			}
 			return true;
 		}
@@ -55,12 +62,19 @@ public class RedditEntryCollection extends EntryCollection<RedditEntry, RedditMe
 		return entries;
 	}
 	
+	@Override
+	public StatTracker[] getTrackers() {
+		return new StatTracker[] {userTracker, subredditTracker};
+	}
+	
 	private void removeEntry(Session session, RedditEntry entry) {
 		SessionEntry<RedditEntry> sessionEntry = new SessionEntry<>(session, entry);
 		if (entry.getUser() != null) {
 			removeFromMap(userEntries, sessionEntry, entry.getUser());
+			userTracker.update();
 		} else if (entry.getSubreddit() != null) {
 			removeFromMap(subredditEntries, sessionEntry, entry.getSubreddit());
+			subredditTracker.update();
 		}
 	}
 	

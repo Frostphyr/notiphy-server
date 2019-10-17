@@ -9,6 +9,7 @@ import java.util.Set;
 
 import javax.websocket.Session;
 
+import com.frostphyr.notiphy.manager.StatTracker;
 import com.frostphyr.notiphy.util.CollectionUtils;
 
 public abstract class EntryCollection<E extends Entry, M extends Message> {
@@ -16,13 +17,11 @@ public abstract class EntryCollection<E extends Entry, M extends Message> {
 	private Map<String, Set<E>> sessionEntries = new HashMap<>();
 	private List<Listener> listeners;
 	private boolean modified;
-	private int count;
 	
 	public synchronized boolean add(Session session, E entry) {
 		Set<E> entries = CollectionUtils.getOrCreate(sessionEntries, session.getId());
 		if (entries.add(entry)) {
 			modified = true;
-			count++;
 			return true;
 		}
 		return false;
@@ -39,7 +38,6 @@ public abstract class EntryCollection<E extends Entry, M extends Message> {
 		Set<E> entries = sessionEntries.get(session.getId());
 		if (entries != null && entries.remove(entry)) {
 			modified = true;
-			count--;
 			return true;
 		}
 		return false;
@@ -80,8 +78,10 @@ public abstract class EntryCollection<E extends Entry, M extends Message> {
 	}
 	
 	public synchronized int getCount() {
-		return count;
+		return sessionEntries.size();
 	}
+	
+	public abstract StatTracker[] getTrackers();
 	
 	protected abstract List<SessionEntry<E>> getMatches(M message);
 	

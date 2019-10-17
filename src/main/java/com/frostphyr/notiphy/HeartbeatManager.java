@@ -13,36 +13,56 @@ import java.util.concurrent.TimeUnit;
 import javax.websocket.PongMessage;
 import javax.websocket.Session;
 
+import com.frostphyr.notiphy.manager.MapStatTracker;
+import com.frostphyr.notiphy.manager.StatTracker;
+
 public class HeartbeatManager {
 	
 	private static final ByteBuffer DATA = ByteBuffer.wrap("heartbeat".getBytes());
 	private static final long HEARTBEAT_DELAY_MS = 30 * 1000;
 	private static final long MISSED_PONG_LIMIT = 3;
 	
+	private final Object LOCK = new Object();
+	
 	private ScheduledExecutorService executor = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
 	private Map<String, Heartbeat> sessionHeartbeats = new HashMap<String, Heartbeat>();
+	private StatTracker sessionTracker = new MapStatTracker("Sessions", sessionHeartbeats);
 	
 	public void start(Session session) {
 		Heartbeat heartbeat = new Heartbeat(session);
 		heartbeat.future = executor.scheduleAtFixedRate(heartbeat, HEARTBEAT_DELAY_MS, HEARTBEAT_DELAY_MS, TimeUnit.MILLISECONDS);
-		Heartbeat oldHeartbeat = sessionHeartbeats.put(session.getId(), heartbeat);
-		if (oldHeartbeat != null) {
-			oldHeartbeat.future.cancel(true);
+		synchronized (LOCK) {
+			Heartbeat oldHeartbeat = sessionHeartbeats.put(session.getId(), heartbeat);
+			if (oldHeartbeat != null) {
+				oldHeartbeat.future.cancel(true);
+			}
+			sessionTracker.update();
 		}
 	}
 	
 	public void stop(Session session) {
-		Heartbeat heartbeat = sessionHeartbeats.remove(session.getId());
-		if (heartbeat != null) {
-			heartbeat.future.cancel(true);
+		synchronized (LOCK) {
+			Heartbeat heartbeat = sessionHeartbeats.remove(session.getId());
+			if (heartbeat != null) {
+				heartbeat.future.cancel(true);
+			}
+			sessionTracker.update();
 		}
 	}
 	
 	public void onPong(Session session, PongMessage message) {
-		Heartbeat heartbeat = sessionHeartbeats.get(session.getId());
+		Heartbeat heartbeat;
+		synchronized (LOCK) {
+			heartbeat = sessionHeartbeats.get(session.getId());
+		}
+		
 		if (heartbeat != null) {
 			heartbeat.onPong(message);
 		}
+	}
+	
+	public StatTracker getSessionTracker() {
+		return sessionTracker;
 	}
 	
 	private class Heartbeat implements Runnable {

@@ -10,18 +10,22 @@ import javax.websocket.Session;
 
 import com.frostphyr.notiphy.EntryCollection;
 import com.frostphyr.notiphy.SessionEntry;
+import com.frostphyr.notiphy.manager.MapStatTracker;
+import com.frostphyr.notiphy.manager.StatTracker;
 import com.frostphyr.notiphy.util.CollectionUtils;
 import com.frostphyr.notiphy.util.TextUtils;
 
 public class TwitterEntryCollection extends EntryCollection<TwitterEntry, TwitterMessage> {
 
 	private Map<String, Set<SessionEntry<TwitterEntry>>> userEntries = new HashMap<>();
+	private StatTracker userTracker = new MapStatTracker("Twitter users", userEntries);
 	
 	@Override
 	public synchronized boolean add(Session session, TwitterEntry entry) {
 		if (super.add(session, entry)) {
 			Set<SessionEntry<TwitterEntry>> sessionEntries = CollectionUtils.getOrCreate(userEntries, entry.getUserId());
 			sessionEntries.add(new SessionEntry<TwitterEntry>(session, entry));
+			userTracker.update();
 			return true;
 		}
 		return false;
@@ -43,10 +47,19 @@ public class TwitterEntryCollection extends EntryCollection<TwitterEntry, Twitte
 		return entries;
 	}
 	
+	@Override
+	public StatTracker[] getTrackers() {
+		return new StatTracker[] {userTracker};
+	}
+	
 	private boolean removeUserEntry(Session session, TwitterEntry entry) {
 		Set<SessionEntry<TwitterEntry>> entries = userEntries.get(entry.getUserId());
 		if (entries != null) {
 			entries.remove(new SessionEntry<TwitterEntry>(session, entry));
+			if (entries.size() == 0) {
+				userEntries.remove(entry.getUserId());
+				userTracker.update();
+			}
 			return true;
 		}
 		return false;

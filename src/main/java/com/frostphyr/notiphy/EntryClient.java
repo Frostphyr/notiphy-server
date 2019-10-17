@@ -3,6 +3,8 @@ package com.frostphyr.notiphy;
 import java.io.IOException;
 import java.util.List;
 
+import javax.servlet.ServletContext;
+
 public abstract class EntryClient {
 	
 	private MessageDecoder<?> messageDecoder;
@@ -15,7 +17,7 @@ public abstract class EntryClient {
 		this.entries = entries;
 	}
 	
-	public abstract boolean init();
+	public abstract boolean init(ServletContext context);
 	
 	public EntryCollection<?, ?> getEntries() {
 		return entries;

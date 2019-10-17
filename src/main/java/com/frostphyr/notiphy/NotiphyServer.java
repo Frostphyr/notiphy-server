@@ -4,6 +4,9 @@ import java.io.EOFException;
 import java.util.List;
 import java.util.ListIterator;
 
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import javax.servlet.annotation.WebListener;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -16,39 +19,51 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.frostphyr.notiphy.ui.ServerExplorer;
-
+@WebListener
 @ServerEndpoint(
 	value = "/server",
 	decoders = {EntryOperationDecoder.class}
 )
-public class NotiphyServer {
+public class NotiphyServer implements ServletContextListener {
 	
 	public static final int MAX_ENTRIES = 25;
 	
-	private static final ServerExplorer explorer = new ServerExplorer();
-	private static final Logger logger = LogManager.getLogger(NotiphyServer.class);
+	private static Logger logger = LogManager.getLogger(NotiphyServer.class);
+	private static HeartbeatManager heartbeatManager = new HeartbeatManager();
+	private static StringBuilder logBuilder = new StringBuilder();
 	
-	private HeartbeatManager heartbeatManager = new HeartbeatManager();
+	public static void append(String message) {
+		if (logBuilder.length() + message.length() < 0) {
+			logBuilder.delete(0, message.length() - (Integer.MAX_VALUE - logBuilder.length()));
+		}
+		logBuilder.append(message);
+	}
 	
-	static {
+	public static String getLog() {
+		return logBuilder.toString();
+	}
+	
+	public static HeartbeatManager getHeartbeatManager() {
+		return heartbeatManager;
+	}
+	
+	@Override
+	public void contextInitialized(ServletContextEvent sce) {
 		for (EntryType e : EntryType.values()) {
-			if (!e.getClient().init()) {
+			if (!e.getClient().init(sce.getServletContext())) {
 				System.exit(0);
 			}
 		}
-		
-		explorer.show();
 	}
 	
-	public static ServerExplorer getExplorer() {
-		return explorer;
+	@Override
+	public void contextDestroyed(ServletContextEvent sce) {
+		
 	}
 	
 	@OnOpen
 	public void onOpen(Session session) {
 		heartbeatManager.start(session);
-		explorer.addSession(session.getId());
 	}
 	
 	@OnMessage
@@ -89,7 +104,6 @@ public class NotiphyServer {
 	
 	@SuppressWarnings("unchecked")
 	private <E extends Entry> boolean remove(Session session, EntryCollection<E, ?> collection, Entry entry) {
-		explorer.append("Removed: " + entry);
 		return collection.remove(session, (E) entry);
 	}
 	
@@ -101,7 +115,6 @@ public class NotiphyServer {
 	@OnClose
 	public void onClose(Session session) {
 		heartbeatManager.stop(session);
-		explorer.removeSession(session.getId());
 		for (EntryType t : EntryType.values()) {
 			t.getClient().getEntries().removeAll(session);
 		}

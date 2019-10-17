@@ -17,6 +17,7 @@ import java.util.concurrent.Future;
 import javax.json.Json;
 import javax.json.JsonException;
 import javax.json.JsonObject;
+import javax.servlet.ServletContext;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.http.NameValuePair;
@@ -64,7 +65,7 @@ public class RedditClient extends EntryClient {
 	}
 
 	@Override
-	public boolean init() {
+	public boolean init(ServletContext context) {
 		entries.addListener(() -> {
 			if ((executorFuture == null || executorFuture.isDone()) && entries.getCount() > 0) {
 				start();
@@ -73,7 +74,7 @@ public class RedditClient extends EntryClient {
 		
 		Document doc;
 		try {
-			doc = IOUtils.parseDocument("WebContent/WEB-INF/reddit_tokens.xml");
+			doc = IOUtils.parseDocument(context.getRealPath("/WEB-INF/reddit_tokens.xml"));
 		} catch (SAXException | IOException | ParserConfigurationException e) {
 			logger.error(e);
 			return false;

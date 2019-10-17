@@ -1,0 +1,71 @@
+@font-face {
+    font-family: "Open Sans";
+    src: url('OpenSans-Light.ttf');
+}
+
+* {
+    font-family: "Open Sans";
+    color: #EEEEEE;
+    overflow-wrap: break-word;
+    margin: 0;
+    padding: 0;
+}
+
+textarea {
+    color: #000000;
+}
+
+html {
+    height: 100%;
+    box-sizing: border-box;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+body {
+    position: relative;
+    background-color: #222222;
+    padding-bottom: 80px;
+    min-height: 100%;
+}
+
+h1 {
+    font-size: 34px;
+    margin: 24px 0;
+    text-align: center;
+}
+
+h2 {
+    font-size: 26px;
+    margin: 12px 0;
+    border-bottom: #555555 2px solid;
+}
+
+th, td {
+    font-size: 16px;
+}
+
+table {
+	border: 2px solid #E6E6E6;
+    border-collapse: collapse;
+    margin: 16px 0;
+}
+
+th, td {
+    border: 1px solid #E6E6E6;
+    padding: 8px;
+}
+
+.content {
+    max-width: 1000px;
+    margin: 0 auto;
+    overflow: auto;
+    padding: 0 16px;
+}
+
+#log {
+	display: block;
+	width: 100%;
+}
