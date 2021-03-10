@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.frostphyr.notiphy.EntryType;
 import com.frostphyr.notiphy.NotiphyServer;
 
-@WebServlet("/Manager")
+@WebServlet("/manager")
 @ServletSecurity(
 	value = @HttpConstraint(rolesAllowed = {"manager"})
 )
