@@ -19,7 +19,7 @@ import com.frostphyr.notiphy.manager.StatTracker;
 public class HeartbeatManager {
 	
 	private static final ByteBuffer DATA = ByteBuffer.wrap("heartbeat".getBytes());
-	private static final long HEARTBEAT_DELAY_MS = 30 * 1000;
+	private static final long HEARTBEAT_DELAY_MS = 60 * 1000;
 	private static final long MISSED_PONG_LIMIT = 3;
 	
 	private final Object LOCK = new Object();
