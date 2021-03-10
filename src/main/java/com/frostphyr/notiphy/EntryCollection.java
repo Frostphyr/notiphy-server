@@ -37,6 +37,10 @@ public abstract class EntryCollection<E extends Entry, M extends Message> {
 	public synchronized boolean remove(Session session, E entry) {
 		Set<E> entries = sessionEntries.get(session.getId());
 		if (entries != null && entries.remove(entry)) {
+			if (entries.size() == 0) {
+				sessionEntries.remove(session.getId());
+			}
+			
 			modified = true;
 			return true;
 		}
