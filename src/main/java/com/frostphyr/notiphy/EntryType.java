@@ -1,34 +1,28 @@
 package com.frostphyr.notiphy;
 
 import com.frostphyr.notiphy.reddit.RedditClient;
-import com.frostphyr.notiphy.reddit.RedditEntryCollection;
-import com.frostphyr.notiphy.reddit.RedditEntryDecoder;
-import com.frostphyr.notiphy.reddit.RedditMessageDecoder;
-import com.frostphyr.notiphy.reddit.RedditMessageEncoder;
+import com.frostphyr.notiphy.reddit.RedditEntry;
 import com.frostphyr.notiphy.twitter.TwitterClient;
-import com.frostphyr.notiphy.twitter.TwitterEntryCollection;
-import com.frostphyr.notiphy.twitter.TwitterEntryDecoder;
-import com.frostphyr.notiphy.twitter.TwitterMessageDecoder;
-import com.frostphyr.notiphy.twitter.TwitterMessageEncoder;
+import com.frostphyr.notiphy.twitter.TwitterEntry;
 
 public enum EntryType {
 	
-	TWITTER(new TwitterEntryDecoder(), new TwitterClient(new TwitterMessageDecoder(), new TwitterMessageEncoder(), new TwitterEntryCollection())),
-	REDDIT(new RedditEntryDecoder(), new RedditClient(new RedditMessageDecoder(), new RedditMessageEncoder(), new RedditEntryCollection()));
+	TWITTER(TwitterEntry.class, new TwitterClient()),
+	REDDIT(RedditEntry.class, new RedditClient());
 	
-	private final EntryDecoder decoder;
-	private final EntryClient client;
+	private final Class<? extends Entry> entryClass;
+	private final EntryClient<?> client;
 	
-	private EntryType(EntryDecoder decoder, EntryClient client) {
-		this.decoder = decoder;
+	private EntryType(Class<? extends Entry> entryClass, EntryClient<?> client) {
+		this.entryClass = entryClass;
 		this.client = client;
 	}
 	
-	public EntryDecoder getDecoder() {
-		return decoder;
+	public Class<? extends Entry> getEntryClass() {
+		return entryClass;
 	}
 	
-	public EntryClient getClient() {
+	public EntryClient<?> getClient() {
 		return client;
 	}
 

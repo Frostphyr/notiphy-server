@@ -3,7 +3,6 @@
   <groupId>com.frostphyr</groupId>
   <artifactId>notiphy-server</artifactId>
   <version>0.0.1</version>
-  <packaging>war</packaging>
   
   <properties>
     <maven.compiler.target>1.8</maven.compiler.target>
@@ -11,6 +10,11 @@
   </properties>
   
   <dependencies>
+    <dependency>
+      <groupId>com.google.firebase</groupId>
+      <artifactId>firebase-admin</artifactId>
+      <version>9.0.0</version>
+    </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
       <artifactId>hbc-core</artifactId>
@@ -24,12 +28,22 @@
     <dependency>
       <groupId>org.glassfish</groupId>
       <artifactId>javax.json</artifactId>
-      <version>1.1.2</version>
+      <version>1.1.4</version>
     </dependency>
     <dependency>
-      <groupId>com.frostphyr</groupId>
-      <artifactId>customappender</artifactId>
-      <version>1.1.0</version>
+      <groupId>jakarta.servlet.jsp.jstl</groupId>
+      <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+      <version>2.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.platform</groupId>
+      <artifactId>jakarta.jakartaee-api</artifactId>
+      <version>9.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.web</groupId>
+      <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+      <version>2.0.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
@@ -37,19 +51,19 @@
       <version>1.4</version>
     </dependency>
     <dependency>
-      <groupId>com.miglayout</groupId>
-      <artifactId>miglayout-swing</artifactId>
-      <version>4.2</version>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.11.0</version>
     </dependency>
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>jstl</artifactId>
-      <version>1.2</version>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-jdk14</artifactId>
+      <version>1.7.36</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
-      <version>2.14.0</version>
+      <groupId>com.frostphyr</groupId>
+      <artifactId>avail</artifactId>
+      <version>1.5.0</version>
     </dependency>
   </dependencies>
 </project>

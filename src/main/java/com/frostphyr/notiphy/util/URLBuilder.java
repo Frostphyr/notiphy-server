@@ -1,4 +1,4 @@
-package com.frostphyr.notiphy;
+package com.frostphyr.notiphy.util;
 
 import java.net.MalformedURLException;
 import java.util.HashMap;

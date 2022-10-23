@@ -19,7 +19,7 @@ public enum MediaType {
 		}
 	}
 	
-	private MediaType(int id, MediaType... validTypes) {
+	MediaType(int id, MediaType... validTypes) {
 		this.id = id;
 		this.validTypes = validTypes;
 	}

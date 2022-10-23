@@ -1,65 +1,23 @@
 package com.frostphyr.notiphy;
 
-import java.io.IOException;
-import java.util.List;
+import java.util.concurrent.ExecutorService;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
-public abstract class EntryClient {
+public interface EntryClient<E extends Entry> {
 	
-	private MessageDecoder<?> messageDecoder;
-	private MessageEncoder<?> messageEncoder;
-	private EntryCollection<?, ?> entries;
+	String getStatus();
 	
-	public EntryClient(MessageDecoder<?> messageDecoder, MessageEncoder<?> messageEncoder, EntryCollection<?, ?> entries) {
-		this.messageDecoder = messageDecoder;
-		this.messageEncoder = messageEncoder;
-		this.entries = entries;
-	}
+	void init(ServletContext context, ExecutorService mainExecutor, MessageDispatcher messageDispatcher) throws Exception;
 	
-	public abstract boolean init(ServletContext context);
+	void shutdown();
 	
-	public EntryCollection<?, ?> getEntries() {
-		return entries;
-	}
+	void clear();
 	
-	protected <E extends Entry, M extends Message> void processMessage(M message) {
-		if (message != null) {
-			List<SessionEntry<E>> entries = getMatches(message);
-			if (entries != null && entries.size() > 0) {
-				String sendText = encode(messageEncoder, message);
-				for (SessionEntry<?> e : entries) {
-					try {
-						e.getSession().getBasicRemote().sendText(sendText);
-					} catch (IOException ex) {
-					}
-				}
-			}
-		}
-	}
+	void update();
 	
-	protected void processEncodedMessage(String encodedMessage) {
-		processMessage(decode(encodedMessage));
-	}
+	void add(UserEntry<E> entry);
 	
-	@SuppressWarnings("unchecked")
-	protected <M extends Message> M decode(String encodedMessage) {
-		return (M) decode(messageDecoder, encodedMessage);
-	}
-	
-	private <M extends Message> M decode(MessageDecoder<M> decoder, String encodedMessage) {
-		return decoder.decode(encodedMessage);
-	}
-	
-	@SuppressWarnings("unchecked")
-	private <M extends Message> String encode(MessageEncoder<?> encoder, M message) {
-		return ((MessageEncoder<M>) encoder).encode(message);
-	}
-	
-	@SuppressWarnings("unchecked")
-	private <E extends Entry, M extends Message> List<SessionEntry<E>> getMatches(M message) {
-		EntryCollection<E, M> entries = (EntryCollection<E, M>) this.entries;
-		return entries.getMatches(message);
-	}
+	void remove(UserEntry<E> entry);
 
 }

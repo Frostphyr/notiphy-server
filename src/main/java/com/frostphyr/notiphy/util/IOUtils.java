@@ -2,7 +2,6 @@ package com.frostphyr.notiphy.util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -10,35 +9,33 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.http.NameValuePair;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import org.apache.http.NameValuePair;
+
 public final class IOUtils {
-	
-	public static final String CHARSET = "UTF-8";
 	
 	private static final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 	
-	public static Document parseDocument(String filePath) throws SAXException, IOException, ParserConfigurationException {
-		DocumentBuilder builder = dbFactory.newDocumentBuilder();
-		return builder.parse(new File(filePath));
+	public static Document parseDocument(InputStream in) throws SAXException, IOException, ParserConfigurationException {
+		return dbFactory.newDocumentBuilder().parse(in);
 	}
 	
 	public static void writeBodyParameters(HttpURLConnection connection, List<NameValuePair> params) throws IOException {
-		try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream(), CHARSET))) {
+		try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream(), StandardCharsets.UTF_8))) {
 			writer.write(getQuery(params));
 		}
 	}
 	
 	public static String readString(InputStream in) throws IOException {
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"))) {
 			StringBuilder builder = new StringBuilder();
 			String line;
 			while ((line = reader.readLine()) != null) {
@@ -53,6 +50,7 @@ public final class IOUtils {
 	
 	private static String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException {
 		StringBuilder builder = new StringBuilder();
+		String charset = StandardCharsets.UTF_8.name();
 		boolean first = true;
 		for (NameValuePair p : params) {
 			if (first) {
@@ -61,9 +59,9 @@ public final class IOUtils {
 				builder.append("&");
 			}
 
-			builder.append(URLEncoder.encode(p.getName(), CHARSET));
+			builder.append(URLEncoder.encode(p.getName(), charset));
 			builder.append("=");
-			builder.append(URLEncoder.encode(p.getValue(), CHARSET));
+			builder.append(URLEncoder.encode(p.getValue(), charset));
 		}
 		return builder.toString();
 	}

@@ -1,17 +1,30 @@
 package com.frostphyr.notiphy.twitter;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
+import com.google.firebase.messaging.Message;
 
 import com.frostphyr.notiphy.EntryType;
-import com.frostphyr.notiphy.Media;
-import com.frostphyr.notiphy.MessageEncoder;
+import com.frostphyr.notiphy.Transformer;
 
-public class TwitterMessageEncoder implements MessageEncoder<TwitterMessage> {
+public class TwitterMessageEncoder implements Transformer<Message.Builder, Tweet> {
 	
-	public String encode(TwitterMessage message) {
-		JsonObjectBuilder builder = Json.createObjectBuilder()
+	@Override
+	public Message.Builder transform(Tweet tweet) {
+		Message.Builder builder = Message.builder()
+				.putData("type", EntryType.TWITTER.toString())
+				.putData("id", tweet.getId())
+				.putData("timestamp", tweet.getTimestamp())
+				.putData("username", tweet.getUsername())
+				.putData("text", tweet.getText())
+				.putData("mature", Boolean.toString(tweet.isMature()));
+		if (tweet.getMedia() != null) {
+			builder.putData("media_type", tweet.getMedia().getType().toString())
+					.putData("media_count", Integer.toString(tweet.getMedia().getCount()))
+					.putData("thumbnail_url", tweet.getMedia().getThumbnailUrl())
+					.putData("thumbnail_width", Integer.toString(tweet.getMedia().getWidth()))
+					.putData("thumbnail_height", Integer.toString(tweet.getMedia().getHeight()));
+		}
+		return builder;
+		/*JsonObjectBuilder builder = Json.createObjectBuilder()
 				.add("type", EntryType.TWITTER.toString())
 				.add("id", message.getId())
 				.add("createdAt", message.getCreatedAt())
@@ -34,7 +47,7 @@ public class TwitterMessageEncoder implements MessageEncoder<TwitterMessage> {
 			builder.add("media", mediaArrayBuilder);
 		}
 		
-		return builder.build().toString();
+		return builder.build().toString();*/
 	}
 
 }
