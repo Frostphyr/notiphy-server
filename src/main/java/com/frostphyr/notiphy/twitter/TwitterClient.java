@@ -87,13 +87,8 @@ public class TwitterClient implements EntryClient<TwitterEntry> {
 	
 	@Override
 	public void shutdown() {
+		stop();
 		pollExecutor.shutdownNow();
-		pollExecutorFuture = null;
-		if (client != null && !client.isDone()) {
-			client.stop();
-			client = null;
-		}
-		messageQueue.clear();
 	}
 	
 	@Override
@@ -114,11 +109,25 @@ public class TwitterClient implements EntryClient<TwitterEntry> {
 					if (pollExecutorFuture == null || pollExecutorFuture.isDone()) {
 						pollExecutorFuture = pollExecutor.submit(pollLoop);
 					}
-				} else {
-					shutdown();
+				} else  {
+					stop();
 				}
 			}
 		}
+	}
+	
+	private void stop() {
+		if (pollExecutorFuture != null) {
+			pollExecutorFuture.cancel(true);
+			pollExecutorFuture = null;
+		}
+		
+		if (client != null && !client.isDone()) {
+			client.stop();
+			client = null;
+		}
+		
+		messageQueue.clear();
 	}
 	
 	@Override
