@@ -365,31 +365,30 @@ public class RedditClient implements EntryClient<RedditEntry> {
 	
 	private final Runnable executorLoop = () -> {
 		try {
-		if (verifyAuthentication()) {
-			synchronized (userEntries) {
-				if (userEntries.size() > 0) {
-					for (Map.Entry<String, Container> e : userEntries.entrySet()) {
-						processNewPosts(RedditEntryType.USER, e.getValue(), INITIAL_LIMIT_USER, new URLBuilder()
-								.setPath("/user/" + e.getKey() + "/submitted.json")
-								.addParameter("sort", "new")
-								.addParameter("raw_json", "1"));
-					}
-					
-				}
-			}
-			synchronized (subredditEntries) {
-				if (subredditEntries.size() > 0) {
-					for (Map.Entry<String, Container> e : subredditEntries.entrySet()) {
-						processNewPosts(RedditEntryType.SUBREDDIT, e.getValue(), INITIAL_LIMIT_SUBREDDIT, new URLBuilder()
-								.setPath("/r/" + e.getKey() + "/new.json")
-								.addParameter("raw_json", "1"));
+			if (verifyAuthentication()) {
+				synchronized (userEntries) {
+					if (userEntries.size() > 0) {
+						for (Map.Entry<String, Container> e : userEntries.entrySet()) {
+							processNewPosts(RedditEntryType.USER, e.getValue(), INITIAL_LIMIT_USER, new URLBuilder()
+									.setPath("/user/" + e.getKey() + "/submitted.json")
+									.addParameter("sort", "new")
+									.addParameter("raw_json", "1"));
+						}
+						
 					}
 				}
+				synchronized (subredditEntries) {
+					if (subredditEntries.size() > 0) {
+						for (Map.Entry<String, Container> e : subredditEntries.entrySet()) {
+							processNewPosts(RedditEntryType.SUBREDDIT, e.getValue(), INITIAL_LIMIT_SUBREDDIT, new URLBuilder()
+									.setPath("/r/" + e.getKey() + "/new.json")
+									.addParameter("raw_json", "1"));
+						}
+					}
+				}
 			}
-		}
-		} catch (Exception e) {
-			logger.error("Error in Reddit executor loop", e);
-			throw e;
+		} catch (Throwable t) {
+			logger.error("Error in Reddit executor loop", t);
 		}
 	};
 	
